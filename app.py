@@ -3,11 +3,15 @@ from flask import Flask, render_template, request, jsonify, flash, redirect, url
 import requests
 import json
 import time
+import webview
 import pygetwindow as gw
 import keyboard
 from flask_caching import Cache
 
 app = Flask(__name__)
+
+#window = webview.create_window('Free Player For Windows', app, width=1500, height=800, resizable=True, confirm_close=True)
+
 app.secret_key = 'IQWYG¨#@$76e78trtwgdyuufgwyuguyNUWIHFf0-2=209'
 
 # Configuração do cache
@@ -94,13 +98,19 @@ def abrir_vlc():
             subprocess.run([vlc_path, url], check=True)
             return "VLC aberto com o canal!"
         except subprocess.CalledProcessError as e:
-            return f"Erro ao abrir o VLC: {str(e)}"
+            return "Erro ao abrir o VLC"
         except Exception as e:
-            return f"Erro inesperado: {str(e)}"
+            return "Erro inesperado"
     return "URL não fornecida!"
 
+# Rota Pré-Load
+
+@app.route("/")
+def preload():
+    return render_template("preload.html")
+
 # Rota para a página inicial
-@app.route("/", methods=["GET", "POST"])
+@app.route("/index", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         nova_url = request.form.get("nova_url")
@@ -117,12 +127,26 @@ def index():
                 json.dump(config_data, config_file, indent=4)
 
             flash("URL atualizada com sucesso!", "success")
+
+            # Invalida o cache da função de categorias
+            cache.delete('categorias')  # Isso força a atualização dos dados
+
+            # Redirecionar para a página principal para garantir que a URL seja recarregada
             return redirect(url_for("index"))
         else:
             flash("A URL não pode estar vazia.", "danger")
 
-    categorias = obter_categorias()
-    return render_template("index.html", categorias=categorias)
+    # Carregar a URL atual do arquivo config.json
+    try:
+        with open("config.json", "r") as config_file:
+            config_data = json.load(config_file)
+        url_atual = config_data.get("url", "")
+    except (FileNotFoundError, json.JSONDecodeError):
+        url_atual = ""
+
+    categorias = obter_categorias()  # Agora a função de categorias será recarregada
+    return render_template("index.html", categorias=categorias, url_atual=url_atual)
+
 
 # Função para verificar o status do VLC
 def check_vlc_status():
@@ -143,3 +167,5 @@ if __name__ == '__main__':
     import threading
     threading.Thread(target=vlc_monitor, daemon=True).start()
     app.run(debug=True, port=5003, threaded=True)
+
+    #webview.start()

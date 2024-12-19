@@ -24,15 +24,7 @@ function carregarCanais(categoria) {
 
                     // Adiciona o conteúdo da carta de canal dentro da div canal-item
                     divCanalItem.innerHTML = `
-                        <div class="card" style="
-                            background-color: white;
-                            padding: 8px;
-                            border-radius: 8px;
-                            width: 167px;
-                            height: 150px;
-                            margin-bottom: 20px;
-                            margin-right: 10px
-                        ">
+                        <div class="card" style="background-color: white; padding: 8px; border-radius: 8px; width: 167px; height: 150px; margin-bottom: 20px; margin-right: 10px;">
                             <img src="${canal.logo}" class="card-img-top" alt="${canal.nome}">
                             <div class="card-body d-flex justify-content-between align-items-center" style="width: 100%">
                                 <span class="card-title" onclick="openPlayer('${canal.url}')">${canal.nome}</span>
@@ -59,7 +51,6 @@ function carregarCanais(categoria) {
         });
 }
 
-
 // Função chamada ao clicar em uma categoria
 function filtrarCanais(categoria) {
     categoriaSelecionada = categoria;  // Atualiza a categoria selecionada
@@ -78,8 +69,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 // Função para abrir o player de vídeo
-// Função para abrir o VLC com o URL do canal
 function openPlayer(url) {
     fetch('/abrir_vlc', {
         method: 'POST',
@@ -140,9 +131,12 @@ function abrirVlc(url) {
         body: new URLSearchParams({ url: url })
     })
     .then(response => response.json())
-    .then(data => alert(data.message))
-    .catch(error => alert("Erro ao tentar abrir o VLC."));
+    .then(data => {
+    })
+    .catch(() => {
+    });
 }
+
 
 
 
